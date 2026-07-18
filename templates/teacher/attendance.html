@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <div class="icon">
+            <i class="fas fa-clipboard-check"></i>
+        </div>
+        Mark Attendance
+    </h1>
+    <p class="page-subtitle">Select a class to mark attendance</p>
+</div>
+
+{% if classes %}
+<div class="class-grid">
+    {% for class in classes %}
+    <div class="class-card">
+        <div class="class-card-header">
+            <div>
+                <h3>{{ class.name }}</h3>
+                <div class="subject">{{ class.subject }}</div>
+            </div>
+        </div>
+        <div class="class-card-footer">
+            <div class="student-count">
+                <i class="fas fa-users"></i>
+                {{ class.students | length }} students
+            </div>
+            <a href="{{ url_for('mark_attendance', class_id=class.id) }}" class="btn btn-success btn-sm">
+                <i class="fas fa-clipboard-check"></i>
+                Mark Attendance
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-chalkboard"></i>
+        </div>
+        <h3>No Classes Available</h3>
+        <p>Create a class first to start marking attendance.</p>
+        <a href="{{ url_for('create_class') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Create Class
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

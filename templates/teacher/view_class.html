@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ class_obj.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="page-title">
+                <div class="icon">
+                    <i class="fas fa-chalkboard"></i>
+                </div>
+                {{ class_obj.name }}
+            </h1>
+            <p class="page-subtitle">{{ class_obj.subject }}</p>
+        </div>
+        <div class="flex gap-1">
+            <a href="{{ url_for('mark_attendance', class_id=class_obj.id) }}" class="btn btn-success">
+                <i class="fas fa-clipboard-check"></i>
+                Mark Attendance
+            </a>
+            <a href="{{ url_for('class_report', class_id=class_obj.id) }}" class="btn btn-secondary">
+                <i class="fas fa-chart-bar"></i>
+                View Report
+            </a>
+            <form method="POST" action="{{ url_for('delete_class', class_id=class_obj.id) }}" style="display: inline;">
+                <button type="submit" class="btn btn-danger" data-confirm="Are you sure you want to delete this class? This will also delete all attendance records.">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Class Info -->
+    <div class="col-4">
+        <div class="card">
+            <h4 class="mb-2">Class Details</h4>
+            <div style="color: var(--text-secondary);">
+                {% if class_obj.description %}
+                <p class="mb-2">{{ class_obj.description }}</p>
+                {% else %}
+                <p class="mb-2" style="font-style: italic;">No description provided</p>
+                {% endif %}
+                <p><strong>Created:</strong> {{ class_obj.created_at.strftime('%B %d, %Y') }}</p>
+                <p><strong>Students:</strong> {{ class_obj.students | length }}</p>
+            </div>
+        </div>
+        
+        <!-- Add Student Form -->
+        {% if available_students %}
+        <div class="card mt-3">
+            <h4 class="mb-2">Add Student to Class</h4>
+            <form method="POST" action="{{ url_for('add_student_to_class', class_id=class_obj.id) }}">
+                <div class="form-group">
+                    <input type="text" id="student-search" class="form-control" 
+                           placeholder="Search students..." 
+                           onkeyup="filterAvailableStudents(this.value)"
+                           style="margin-bottom: 0.5rem;">
+                    <select name="student_id" id="student-select" class="form-control" required size="8" style="height: 200px;">
+                        <option value="">Select a student...</option>
+                        {% for student in available_students %}
+                        <option value="{{ student.id }}" data-name="{{ student.name|lower }}" data-roll="{{ student.roll_number|lower }}" data-email="{{ student.email|lower }}">
+                            {{ student.name }} ({{ student.roll_number }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i>
+                    Add Selected Student
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Enrolled Students -->
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-users"></i>
+                    Enrolled Students ({{ class_obj.students | length }})
+                </h3>
+            </div>
+            
+            {% if class_obj.students %}
+            <div class="mb-2">
+                <input type="text" class="form-control" placeholder="Search students..." 
+                       onkeyup="filterStudents(this.value)">
+            </div>
+            
+            {% for student in class_obj.students %}
+            <div class="student-row">
+                <div class="student-avatar">
+                    {{ student.name[0] | upper }}
+                </div>
+                <div class="student-info">
+                    <div class="student-name">{{ student.name }}</div>
+                    <div class="student-details">
+                        {{ student.roll_number }} • {{ student.email }}
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('remove_student_from_class', class_id=class_obj.id, student_id=student.id) }}">
+                    <button type="submit" class="btn btn-danger btn-sm" 
+                            data-confirm="Remove {{ student.name }} from this class?">
+                        <i class="fas fa-user-minus"></i>
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3>No Students Enrolled</h3>
+                <p>Add students to this class to start tracking attendance.</p>
+                {% if available_students %}
+                <p style="color: var(--text-muted);">Use the form on the left to add students.</p>
+                {% else %}
+                <a href="{{ url_for('create_student') }}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Create Student
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

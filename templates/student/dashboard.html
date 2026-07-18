@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <div class="icon">
+            <i class="fas fa-home"></i>
+        </div>
+        Welcome, {{ student.name }}!
+    </h1>
+    <p class="page-subtitle">Here's your attendance overview</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-chalkboard"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ student.classes | length }}</div>
+            <div class="stat-label">Enrolled Classes</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ present_count }}</div>
+            <div class="stat-label">Days Present</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon danger">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ absent_count }}</div>
+            <div class="stat-label">Days Absent</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon {% if overall_percentage >= 75 %}success{% elif overall_percentage >= 50 %}warning{% else %}danger{% endif %}">
+            <i class="fas fa-percentage"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ overall_percentage }}%</div>
+            <div class="stat-label">Overall Attendance</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Attendance Progress -->
+    <div class="col-6">
+        <div class="card">
+            <h4 class="mb-3">Attendance Progress</h4>
+            <div style="margin-bottom: 1.5rem;">
+                <div class="flex justify-between mb-1">
+                    <span style="color: var(--text-secondary);">Overall Attendance</span>
+                    <span style="font-weight: 600; {% if overall_percentage >= 75 %}color: var(--success);{% elif overall_percentage >= 50 %}color: var(--warning);{% else %}color: var(--danger);{% endif %}">
+                        {{ overall_percentage }}%
+                    </span>
+                </div>
+                <div class="progress" style="height: 12px;">
+                    <div class="progress-bar {% if overall_percentage >= 75 %}success{% elif overall_percentage >= 50 %}warning{% else %}danger{% endif %}" 
+                         style="width: {{ overall_percentage }}%;"></div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2" style="flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 120px; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-md); text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">{{ present_count }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Present</div>
+                </div>
+                <div style="flex: 1; min-width: 120px; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-md); text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger);">{{ absent_count }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Absent</div>
+                </div>
+                <div style="flex: 1; min-width: 120px; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-md); text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">{{ late_count }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Late</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="col-6">
+        <div class="card">
+            <h4 class="mb-3">Recent Attendance</h4>
+            
+            {% if recent_attendance %}
+            {% for record in recent_attendance %}
+            <div class="student-row" style="margin-bottom: 0.5rem;">
+                <div class="student-avatar" style="width: 36px; height: 36px; font-size: 0.8rem;
+                    {% if record.status == 'present' %}background: linear-gradient(135deg, var(--success), #34d399);
+                    {% elif record.status == 'absent' %}background: linear-gradient(135deg, var(--danger), #f87171);
+                    {% else %}background: linear-gradient(135deg, var(--warning), #fbbf24);{% endif %}">
+                    {% if record.status == 'present' %}<i class="fas fa-check"></i>
+                    {% elif record.status == 'absent' %}<i class="fas fa-times"></i>
+                    {% else %}<i class="fas fa-clock"></i>{% endif %}
+                </div>
+                <div class="student-info" style="flex: 1;">
+                    <div class="student-name">{{ record.class_obj.name }}</div>
+                    <div class="student-details">{{ record.date.strftime('%B %d, %Y') }}</div>
+                </div>
+                <span class="badge {% if record.status == 'present' %}badge-success{% elif record.status == 'absent' %}badge-danger{% else %}badge-warning{% endif %}">
+                    {{ record.status | capitalize }}
+                </span>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state" style="padding: 2rem;">
+                <div class="icon" style="font-size: 2rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3>No Attendance Records</h3>
+                <p>Your attendance will appear here once marked.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- My Classes -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title">My Classes</h3>
+        <a href="{{ url_for('student_classes') }}" class="btn btn-secondary btn-sm">
+            View All <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    
+    {% if student.classes %}
+    <div class="class-grid">
+        {% for class in student.classes %}
+        <div class="class-card">
+            <div class="class-card-header">
+                <div>
+                    <h3>{{ class.name }}</h3>
+                    <div class="subject">{{ class.subject }}</div>
+                </div>
+            </div>
+            <div class="class-card-footer">
+                <div class="student-count">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    {{ class.teacher.name }}
+                </div>
+                <a href="{{ url_for('student_attendance', class_id=class.id) }}" class="btn btn-secondary btn-sm">
+                    View Attendance ahmed
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-chalkboard"></i>
+        </div>
+        <h3>No Classes Yet</h3>
+        <p>You haven't been enrolled in any classes. Contact your teacher.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

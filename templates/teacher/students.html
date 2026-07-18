@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}My Students{% endblock %}
+
+{% block content %}
+<div class="page-header flex justify-between items-center">
+    <div>
+        <h1 class="page-title">
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+            My Students
+        </h1>
+        <p class="page-subtitle">Manage all your students and their accounts</p>
+    </div>
+    <a href="{{ url_for('create_student') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i>
+        Add Student
+    </a>
+</div>
+
+{% if students %}
+<div class="card">
+    <div class="mb-2">
+        <input type="text" class="form-control" placeholder="Search students by name, email, or roll number..." 
+               onkeyup="filterStudents(this.value)" style="max-width: 400px;">
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Roll Number</th>
+                    <th>Username</th>
+                    <th>Created By</th>
+                    <th>Classes</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr class="student-row" style="display: table-row;">
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="student-avatar" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                {{ student.name[0] | upper }}
+                            </div>
+                            <div>
+                                <div class="student-name">{{ student.name }}</div>
+                                <div class="student-details">{{ student.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-info">{{ student.roll_number }}</span></td>
+                    <td style="color: var(--text-secondary);">{{ student.username }}</td>
+                    <td style="color: var(--text-secondary);">{{ student.created_by.name }}</td>
+                    <td>
+                        {% if student.classes %}
+                        <span class="badge badge-primary">{{ student.classes | length }} classes</span>
+                        {% else %}
+                        <span class="badge badge-warning">No classes</span>
+                        {% endif %}
+                    </td>
+                    <td style="color: var(--text-secondary);">{{ student.created_at.strftime('%b %d, %Y') }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_student', student_id=student.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" 
+                                    data-confirm="Delete {{ student.name }}? This will also delete all their attendance records.">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-user-graduate"></i>
+        </div>
+        <h3>No Students Yet</h3>
+        <p>Create student accounts so they can log in and view their attendance.</p>
+        <a href="{{ url_for('create_student') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i>
+            Add Your First Student
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

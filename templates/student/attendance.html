@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance - {{ class_obj.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="page-title">
+                <div class="icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                {{ class_obj.name }}
+            </h1>
+            <p class="page-subtitle">{{ class_obj.subject }} • Your attendance history</p>
+        </div>
+        <a href="{{ url_for('student_classes') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Classes
+        </a>
+    </div>
+</div>
+
+<!-- Attendance Summary -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Total Classes</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ present }}</div>
+            <div class="stat-label">Present</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon danger">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total - present }}</div>
+            <div class="stat-label">Absent/Late</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon {% if percentage >= 75 %}success{% elif percentage >= 50 %}warning{% else %}danger{% endif %}">
+            <i class="fas fa-percentage"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ percentage }}%</div>
+            <div class="stat-label">Attendance Rate</div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="card mb-4">
+    <h4 class="mb-2">Attendance Progress</h4>
+    <div class="flex justify-between mb-1">
+        <span style="color: var(--text-secondary);">Your attendance in this class</span>
+        <span style="font-weight: 600; {% if percentage >= 75 %}color: var(--success);{% elif percentage >= 50 %}color: var(--warning);{% else %}color: var(--danger);{% endif %}">
+            {{ percentage }}%
+        </span>
+    </div>
+    <div class="progress" style="height: 16px;">
+        <div class="progress-bar {% if percentage >= 75 %}success{% elif percentage >= 50 %}warning{% else %}danger{% endif %}" 
+             style="width: {{ percentage }}%;"></div>
+    </div>
+    
+    {% if percentage < 75 %}
+    <div style="margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-sm); border-left: 4px solid var(--warning);">
+        <p style="color: var(--warning); font-weight: 500; margin: 0;">
+            <i class="fas fa-exclamation-triangle"></i>
+            {% if percentage < 50 %}
+            Your attendance is critical. Please attend more classes to avoid academic penalties.
+            {% else %}
+            Your attendance needs improvement. Try to attend all classes to maintain good standing.
+            {% endif %}
+        </p>
+    </div>
+    {% else %}
+    <div style="margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-sm); border-left: 4px solid var(--success);">
+        <p style="color: var(--success); font-weight: 500; margin: 0;">
+            <i class="fas fa-check-circle"></i>
+            Great job! Your attendance is in good standing. Keep it up!
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Attendance History -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Attendance History</h3>
+    </div>
+    
+    {% if attendance_records %}
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ record.date.strftime('%B %d, %Y') }}</td>
+                    <td style="color: var(--text-secondary);">{{ record.date.strftime('%A') }}</td>
+                    <td>
+                        <span class="badge {% if record.status == 'present' %}badge-success{% elif record.status == 'absent' %}badge-danger{% else %}badge-warning{% endif %}">
+                            {% if record.status == 'present' %}<i class="fas fa-check"></i>{% elif record.status == 'absent' %}<i class="fas fa-times"></i>{% else %}<i class="fas fa-clock"></i>{% endif %}
+                            {{ record.status | capitalize }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-calendar-times"></i>
+        </div>
+        <h3>No Attendance Records</h3>
+        <p>Your teacher hasn't marked attendance for this class yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

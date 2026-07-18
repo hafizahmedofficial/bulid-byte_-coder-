@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Create Class{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <div class="icon">
+            <i class="fas fa-plus-circle"></i>
+        </div>
+        Create New Class
+    </h1>
+    <p class="page-subtitle">Set up a new class for attendance tracking</p>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        <div class="card">
+            <form method="POST" action="{{ url_for('create_class') }}" data-validate>
+                <div class="form-group">
+                    <label class="form-label" for="name">Class Name *</label>
+                    <input type="text" class="form-control" id="name" name="name" 
+                           placeholder="e.g., Computer Science 101" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="subject">Subject *</label>
+                    <input type="text" class="form-control" id="subject" name="subject" 
+                           placeholder="e.g., Programming Fundamentals" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="description">Description (Optional)</label>
+                    <textarea class="form-control" id="description" name="description" 
+                              placeholder="Add any additional details about this class..."></textarea>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Create Class
+                    </button>
+                    <a href="{{ url_for('teacher_classes') }}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-6">
+        <div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(14, 165, 233, 0.1));">
+            <h4 class="mb-2">
+                <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+                Tips for Creating Classes
+            </h4>
+            <ul style="color: var(--text-secondary); line-height: 2;">
+                <li>Use descriptive names that students will recognize</li>
+                <li>Include the subject to help organize your classes</li>
+                <li>Add a description with schedule details or room info</li>
+                <li>You can add students after creating the class</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

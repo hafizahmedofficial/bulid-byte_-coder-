@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}My Classes{% endblock %}
+
+{% block content %}
+<div class="page-header flex justify-between items-center">
+    <div>
+        <h1 class="page-title">
+            <div class="icon">
+                <i class="fas fa-chalkboard"></i>
+            </div>
+            My Classes
+        </h1>
+        <p class="page-subtitle">Manage your classes and enrolled students</p>
+    </div>
+    <a href="{{ url_for('create_class') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i>
+        Create Class
+    </a>
+</div>
+
+{% if classes %}
+<div class="class-grid">
+    {% for class in classes %}
+    <div class="class-card">
+        <div class="class-card-header">
+            <div>
+                <h3>{{ class.name }}</h3>
+                <div class="subject">{{ class.subject }}</div>
+            </div>
+            <span class="badge badge-primary">Active</span>
+        </div>
+        {% if class.description %}
+        <p class="description">{{ class.description[:100] }}{% if class.description|length > 100 %}...{% endif %}</p>
+        {% else %}
+        <p class="description" style="color: var(--text-muted); font-style: italic;">No description provided</p>
+        {% endif %}
+        <div class="class-card-footer">
+            <div class="student-count">
+                <i class="fas fa-users"></i>
+                {{ class.students | length }} students
+            </div>
+            <div class="flex gap-1">
+                <a href="{{ url_for('mark_attendance', class_id=class.id) }}" class="btn btn-success btn-sm" title="Mark Attendance">
+                    <i class="fas fa-clipboard-check"></i>
+                </a>
+                <a href="{{ url_for('view_class', class_id=class.id) }}" class="btn btn-secondary btn-sm">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-chalkboard"></i>
+        </div>
+        <h3>No Classes Yet</h3>
+        <p>Create your first class to start managing attendance.</p>
+        <a href="{{ url_for('create_class') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Create Your First Class
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

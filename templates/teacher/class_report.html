@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Report - {{ class_obj.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="page-title">
+                <div class="icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                Attendance Report
+            </h1>
+            <p class="page-subtitle">{{ class_obj.name }} • {{ class_obj.subject }}</p>
+        </div>
+        <a href="{{ url_for('teacher_reports') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Reports
+        </a>
+    </div>
+</div>
+
+{% if student_stats %}
+<!-- Summary Stats -->
+{% set total_present = student_stats | sum(attribute='present') %}
+{% set total_absent = student_stats | sum(attribute='absent') %}
+{% set total_late = student_stats | sum(attribute='late') %}
+{% set total_records = student_stats | sum(attribute='total') %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ class_obj.students | length }}</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_present }}</div>
+            <div class="stat-label">Total Present</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon danger">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_absent }}</div>
+            <div class="stat-label">Total Absent</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_late }}</div>
+            <div class="stat-label">Total Late</div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Report Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Student-wise Attendance</h3>
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Roll No.</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Late</th>
+                    <th>Total</th>
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in student_stats %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="student-avatar" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                {{ stat.student.name[0] | upper }}
+                            </div>
+                            <span>{{ stat.student.name }}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-info">{{ stat.student.roll_number }}</span></td>
+                    <td><span class="badge badge-success">{{ stat.present }}</span></td>
+                    <td><span class="badge badge-danger">{{ stat.absent }}</span></td>
+                    <td><span class="badge badge-warning">{{ stat.late }}</span></td>
+                    <td>{{ stat.total }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="progress" style="width: 100px;">
+                                <div class="progress-bar {% if stat.percentage >= 75 %}success{% elif stat.percentage >= 50 %}warning{% else %}danger{% endif %}" 
+                                     style="width: {{ stat.percentage }}%;"></div>
+                            </div>
+                            <span style="font-weight: 600; {% if stat.percentage >= 75 %}color: var(--success);{% elif stat.percentage >= 50 %}color: var(--warning);{% else %}color: var(--danger);{% endif %}">
+                                {{ stat.percentage }}%
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="card mt-3">
+    <h4 class="mb-2">Attendance Legend</h4>
+    <div class="flex gap-2" style="flex-wrap: wrap;">
+        <div class="flex items-center gap-1">
+            <div style="width: 12px; height: 12px; background: var(--success); border-radius: 2px;"></div>
+            <span style="color: var(--text-secondary);">75%+ - Good Standing</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div style="width: 12px; height: 12px; background: var(--warning); border-radius: 2px;"></div>
+            <span style="color: var(--text-secondary);">50-74% - Needs Improvement</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div style="width: 12px; height: 12px; background: var(--danger); border-radius: 2px;"></div>
+            <span style="color: var(--text-secondary);">Below 50% - Critical</span>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>No Attendance Data</h3>
+        <p>Start marking attendance to see reports here.</p>
+        <a href="{{ url_for('mark_attendance', class_id=class_obj.id) }}" class="btn btn-primary">
+            <i class="fas fa-clipboard-check"></i>
+            Mark Attendance
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

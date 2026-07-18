@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-sparkles"></i>
+            Smart Attendance Tracking
+        </div>
+        <h1 class="hero-title">Attenders</h1>
+        
+        <p class="hero-subtitle">
+            Streamline your classroom professional Student Attendance & Performance System with our modern, intuitive platform. 
+            Track student attendance, generate reports, and stay organized effortlessly.
+            by developers HAFIZ AHMED RAZA , ARIBA SIDDIQUE
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-user-plus"></i>
+                Register as Teacher
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .main-content.no-nav {
+        padding-top: 0;
+    }
+</style>
+{% endblock %}

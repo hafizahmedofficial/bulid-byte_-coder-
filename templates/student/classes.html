@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}My Classes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <div class="icon">
+            <i class="fas fa-chalkboard"></i>
+        </div>
+        My Classes
+    </h1>
+    <p class="page-subtitle">View your enrolled classes and attendance</p>
+</div>
+
+{% if student.classes %}
+<div class="class-grid">
+    {% for class in student.classes %}
+    <div class="class-card">
+        <div class="class-card-header">
+            <div>
+                <h3>{{ class.name }}</h3>
+                <div class="subject">{{ class.subject }}</div>
+            </div>
+            <span class="badge badge-primary">Enrolled</span>
+        </div>
+        
+        {% if class.description %}
+        <p class="description">{{ class.description[:100] }}{% if class.description|length > 100 %}...{% endif %}</p>
+        {% endif %}
+        
+        <div style="margin: 1rem 0; padding: 1rem; background: var(--bg-glass); border-radius: var(--radius-sm);">
+            <div class="flex items-center gap-1" style="color: var(--text-secondary); font-size: 0.9rem;">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Teacher: <strong style="color: var(--text-primary);">{{ class.teacher.name }}</strong></span>
+            </div>
+        </div>
+        
+        <div class="class-card-footer">
+            <div class="student-count">
+                <i class="fas fa-users"></i>
+                {{ class.students | length }} students
+            </div>
+            <a href="{{ url_for('student_attendance', class_id=class.id) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-clipboard-list"></i>
+                View Attendance
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="icon">
+            <i class="fas fa-chalkboard"></i>
+        </div>
+        <h3>No Classes Yet</h3>
+        <p>You haven't been enrolled in any classes yet. Please contact your teacher to be added to a class.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

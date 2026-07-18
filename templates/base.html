@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Attenders - Ariba Siddiqui Ahmed Raza{% endblock %} | professional Student Attendance & Performance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if session.user_id %}
+    <!-- Navigation for logged-in users -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            Attenders smart
+        </a>
+        
+        <div class="navbar-nav">
+            {% if session.user_type == 'teacher' %}
+            <a href="{{ url_for('teacher_dashboard') }}" class="nav-link {% if request.endpoint == 'teacher_dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            <a href="{{ url_for('teacher_classes') }}" class="nav-link {% if 'class' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-chalkboard"></i>
+                Classes
+            </a>
+            <a href="{{ url_for('teacher_students') }}" class="nav-link {% if 'student' in request.endpoint and 'student_' not in request.endpoint %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                Students
+            </a>
+            <a href="{{ url_for('teacher_attendance') }}" class="nav-link {% if 'attendance' in request.endpoint and request.endpoint != 'student_attendance' %}active{% endif %}">
+                <i class="fas fa-clipboard-check"></i>
+                Attendance
+            </a>
+            <a href="{{ url_for('teacher_reports') }}" class="nav-link {% if 'report' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            {% else %}
+            <a href="{{ url_for('student_dashboard') }}" class="nav-link {% if request.endpoint == 'student_dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            <a href="{{ url_for('student_classes') }}" class="nav-link {% if request.endpoint == 'student_classes' %}active{% endif %}">
+                <i class="fas fa-chalkboard"></i>
+                My Classes
+            </a>
+            {% endif %}
+        </div>
+        
+        <div class="navbar-user">
+            <div class="user-info">
+                <div class="user-name">{{ session.user_name }}</div>
+                <div class="user-role">{{ session.user_type }}</div>
+            </div>
+            <div class="user-avatar">
+                {{ session.user_name[0] | upper }}
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <main class="main-content {% if not session.user_id %}no-nav{% endif %}">
+        <div class="container">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
